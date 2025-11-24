@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>TODOs</h1>
+<a href="{% url 'core:create' %}">Create TODO</a>
+<ul>
+  {% for todo in todos %}
+    <li>
+      {% if todo.completed %}<del>{{ todo.title }}</del>{% else %}{{ todo.title }}{% endif %}
+      - due: {{ todo.due_date }}
+      <a href="{% url 'core:edit' todo.pk %}">edit</a>
+      <a href="{% url 'core:delete' todo.pk %}">delete</a>
+      <a href="{% url 'core:toggle' todo.pk %}">toggle</a>
+    </li>
+  {% empty %}
+    <li>No TODOs yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
