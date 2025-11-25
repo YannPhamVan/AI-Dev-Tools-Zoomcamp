@@ -53,7 +53,7 @@ The course is organized into six modules:
 
 - 📄 [Official course page](https://datatalks.club/blog/ai-dev-tools-zoomcamp-2025-free-course-to-master-coding-assistants-agents-and-automation.html)  
 - 📄 [Course GitHub repo](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp)  
-- 🎥 [YouTube playlist](https://www.youtube.com/playlist?list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR)  
+- 🎥 [YouTube playlist](https://youtube.com/playlist?list=PL3MmuxUbc_hLuyafXPyhTdbF4s_uNhc43&si=08kmiOMvVoXzUzx7)  
 - 📚 [Guide to all Zoomcamps](https://datatalks.club/blog/guide-to-free-online-courses-at-datatalks-club.html)  
 
 ---
