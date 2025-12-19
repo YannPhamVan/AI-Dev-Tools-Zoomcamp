@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Archives
+*.zip
+
+# Virtual environment
+.venv/
+
+# IDE/editor
+.vscode/
+
+# macOS
+.DS_Store
+
+# keep local env files out
+*.env
