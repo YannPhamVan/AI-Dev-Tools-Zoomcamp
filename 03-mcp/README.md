@@ -1,69 +1,112 @@
-## MCP homework — reproduction quick guide
+## MCP Homework — Reproduction and Usage Guide
 
-But: ce README explique rapidement comment reproduire les trois questions du devoir (uv, FastMCP, et l'outil de scraping via r.jina.ai).
+This repository contains the starter code and helper scripts used to complete the MCP homework (Model Context Protocol). The files include a FastMCP server (`main.py`), a search/index implementation (`search.py`) and several small test helpers. This README documents how to reproduce the homework answers and how to use the included tools.
 
-1) Préparer l'environnement (Windows / PowerShell)
+### Prerequisites (Windows / PowerShell)
 
- - Créer et activer un venv (optionnel mais recommandé) :
+- Python 3.12+ (recommended)
+- A virtual environment is recommended. From the project root run:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
- - Installer `uv` (gestionnaire de dépendances utilisé dans l'exo) :
+### Install dependencies
 
 ```powershell
-python -m pip install uv
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
- - Initialiser le projet et ajouter `fastmcp` :
+If you don't have `requirements.txt`, install the minimal set manually:
 
 ```powershell
-uv init
-uv add fastmcp
+python -m pip install fastmcp requests uv minsearch scikit-learn numpy
 ```
 
-2) Question 1 — trouver le hash dans `uv.lock`
+### Question 1 — uv lock
 
- - Ouvrez `uv.lock` et cherchez la section `[[package]]` pour `name = "fastmcp"`.
- - Dans la sous-section `wheels` vous verrez des objets avec `hash = "sha256:..."`.
- - Copiez la première valeur `sha256:...` (entière, sans guillemets). Par exemple, dans cet exercice le premier hash trouvé pour la roue `fastmcp-2.14.1-py3-none-any.whl` est :
+- After running `uv init` and `uv add fastmcp`, inspect `uv.lock` for the `fastmcp` package entry.
+- Inside its `wheels` array you will find `hash = "sha256:..."`. Copy the first sha256 value exactly.
+
+Example (in this repo the first wheel sha256 found was):
 
 ```
 sha256:fb3e365cc1d52573ab89caeba9944dd4b056149097be169bce428e011f0a57e5
 ```
 
-3) Question 2 — lancer le serveur FastMCP (starter code)
+### Question 2 — Run the FastMCP server
 
- - Le fichier `server.py` contient le code starter. Lancez-le :
+- The server code lives in `main.py`. Start it with `uv`:
 
 ```powershell
-python server.py
+uv --directory C:/full/path/to/03-mcp run python main.py
 ```
 
- - Quand l'interface d'accueil apparaît, notez le transport indiqué (réponse attendue : `STDIO`, `HTTP`, `HTTPS` ou `SSE`).
+- The server prints a startup banner showing the transport used (one of `stdio`, `http`, `https`, or `sse`). Use that transport to interact. Note: when the transport is `stdio` you must send JSON-RPC messages; for interactive tests use the HTTP transport or call the local Python functions.
 
-4) Question 3 — Scrape Web Tool (Jina reader)
+### Question 3 — Scrape tool (Jina Reader)
 
- - Jina reader renvoie la page en markdown si vous préfixez l'URL par `https://r.jina.ai/`.
- - Pour tester rapidement sans ajouter de code au dépôt, utilisez un one‑liner Python pour récupérer et compter les caractères :
+- To fetch any web page as Markdown use the Jina reader prefix: `https://r.jina.ai/{TARGET_URL}`. Example:
 
 ```powershell
 python -c "import requests; print(len(requests.get('https://r.jina.ai/https://github.com/alexeygrigorev/minsearch').text))"
 ```
 
- - Si vous préférez un petit script `scrape.py` (à créer localement) :
+- Note: raw vs blob vs HTML pages return different Markdown content; counts will vary slightly depending on the exact URL and HTTP headers.
 
-```python
-import requests
-url = 'https://r.jina.ai/https://github.com/alexeygrigorev/minsearch'
-print(len(requests.get(url).text))
+### Question 4 — Integrate the Tool and count occurrences
+
+- `main.py` exposes a `count_word_on_page(url, word)` function and registers it as an MCP tool. The fastest way to run the check locally (without using the MCP UI) is:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -c "from main import count_word_on_page; print(count_word_on_page('https://datatalks.club','data'))"
 ```
 
-Remarques importantes
-- Les variations de l'URL (ajout d'un slash final, usage de la page `raw` vs `blob` vs la page HTML du repo) changent le contenu renvoyé par r.jina.ai — donc la longueur peut varier.
-- Les en‑têtes HTTP (User-Agent) peuvent parfois influencer le rendu, mais ce n'est pas systématique.
-- Pour la question 3 du devoir, si votre run local ne retourne pas exactement `29184`, choisissez la valeur la plus proche parmi les options fournies — dans mes essais la valeur la plus proche était `29184`.
+- If you prefer the UI, start the server with `transport='http'` (the `main.py` in this repo already runs with `mcp.run(transport='http')`) and open the provided HTTP endpoint in a browser.
 
-Si vous voulez, je peux ajouter un petit script `fetch_save.py` qui sauvegarde la sortie et la compare automatiquement à un fichier attendu. Voulez-vous que je l'ajoute dans le dépôt ?
+### Question 5 — Implement Search
+
+- `search.py` downloads `https://github.com/jlowin/fastmcp/archive/refs/heads/main.zip` (skips download if already present), extracts `.md` and `.mdx` files, strips the leading archive folder from filenames (so `fastmcp-main/docs/…` becomes `docs/…`), and indexes them using `minsearch.Index`.
+- The script provides a `index_and_search(docs, query, topk=5)` helper and a `main()` that runs a sample search for the query `"demo"`.
+
+To run the search locally:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python search.py
+```
+
+The top result for the query `demo` in the indexed `fastmcp` archive is:
+
+```
+examples/testing_demo/README.md
+```
+
+### Question 6 — Search tool integration (extra)
+
+- The repository also integrates the search as an MCP tool. `main.py` registers a `search_docs(query)` tool that returns the top-5 filenames for a query.
+- You can call it locally as:
+
+```powershell
+python -c "from main import search_docs; print(search_docs('demo'))"
+```
+
+### Developer notes & implementation details
+
+- `main.py` exposes helper functions and registers them with FastMCP via `@mcp.tool` or `mcp.tool(...)`.
+- `search.py` uses `minsearch.Index(text_fields=['content'], keyword_fields=['filename'])` to index documents following the `minsearch` API.
+
+### Files of interest
+
+- `main.py` — MCP server and tools (`fetch_page_markdown`, `count_word_on_page`, `search_docs`).
+- `search.py` — download, extract and index `.md`/`.mdx` files and perform queries.
+- `ui_server.py` — a small local UI used during development (optional).
+
+If you want, I can:
+- Commit and push these final changes, including `search.py` and `main.py` updates.
+- Add a `requirements.txt` listing all runtime dependencies.
+- Remove development helpers like `ui_server.py` if you prefer a minimal repo.
+

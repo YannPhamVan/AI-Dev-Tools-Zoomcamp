@@ -1,0 +1,6 @@
+fastmcp>=2.14.1
+requests>=2.31.0
+uv
+minsearch==0.0.7
+scikit-learn
+numpy
