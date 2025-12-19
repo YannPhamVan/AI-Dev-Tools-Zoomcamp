@@ -110,3 +110,24 @@ If you want, I can:
 - Add a `requirements.txt` listing all runtime dependencies.
 - Remove development helpers like `ui_server.py` if you prefer a minimal repo.
 
+## Environment recreation
+
+To recreate the Python virtual environment and install dependencies (Windows PowerShell):
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Or (Windows `cmd`):
+
+```cmd
+python -m venv .venv
+.\.venv\Scripts\activate.bat
+pip install -r requirements.txt
+```
+
+If you prefer `poetry`/`pipx` workflows or a system-wide install, adapt the above commands accordingly.
+
