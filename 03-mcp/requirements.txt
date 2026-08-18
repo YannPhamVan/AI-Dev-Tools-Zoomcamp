@@ -1,4 +1,4 @@
-fastmcp>=2.14.1
+fastmcp>=3.2.0
 requests>=2.31.0
 uv
 minsearch==0.0.7
